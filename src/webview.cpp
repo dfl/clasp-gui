@@ -25,6 +25,7 @@ struct WebView::Impl {
     std::unique_ptr<choc::ui::WebView> webview;
     void* parentWindow = nullptr;
     bool created = false;
+    bool devToolsOpened = false;
 };
 
 WebView::WebView(const WebViewOptions& options)
@@ -64,7 +65,6 @@ bool WebView::create() {
 
     choc::ui::WebView::Options opts;
     opts.enableDebugMode = options_.enableDebugMode;
-    opts.enableDebugInspector = options_.openDevToolsOnStart;
 
     impl_->webview = std::make_unique<choc::ui::WebView>(opts);
     if (!impl_->webview) return false;
@@ -121,7 +121,15 @@ bool WebView::setSize(uint32_t width, uint32_t height) {
 }
 
 bool WebView::show() {
-    return impl_->created;
+    if (!impl_->created) return false;
+
+    // Open dev tools on first show if requested (UNTESTED)
+    if (options_.openDevToolsOnStart && !impl_->devToolsOpened) {
+        impl_->devToolsOpened = true;
+        openDevTools();
+    }
+
+    return true;
 }
 
 bool WebView::hide() {
@@ -170,6 +178,11 @@ void WebView::bind(const std::string& name, BindingCallback callback) {
 #endif
 }
 
+void WebView::openDevTools() {
+    if (!impl_->created || !options_.enableDebugMode) return;
+    platform::simulateDevToolsShortcut();
+}
+
 #else // No CHOC
 
 struct WebView::Impl {
@@ -197,6 +210,7 @@ void WebView::navigate(const std::string&) {}
 void WebView::loadHtml(const std::string&) {}
 void WebView::evaluateScript(const std::string&) {}
 void WebView::bind(const std::string&, BindingCallback) {}
+void WebView::openDevTools() {}
 
 #endif // CLASP_GUI_HAS_CHOC
 

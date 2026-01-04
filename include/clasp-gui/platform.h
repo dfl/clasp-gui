@@ -40,5 +40,9 @@ bool removeWebView(void* webview);
 // Platform-specific fixes
 void initPlatformFixes(void* webview);
 
+// Simulate keyboard shortcut to open dev tools (UNTESTED)
+// macOS: Cmd+Option+I, Windows: Ctrl+Shift+I, Linux: Ctrl+Shift+I
+void simulateDevToolsShortcut();
+
 } // namespace platform
 } // namespace clasp_gui

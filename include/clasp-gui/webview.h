@@ -72,6 +72,10 @@ public:
     // JavaScript execution (fire-and-forget)
     void evaluateScript(const std::string& js);
 
+    // Open developer tools (requires enableDebugMode = true)
+    // Uses platform-specific keyboard simulation (UNTESTED)
+    void openDevTools();
+
     // Bind a C++ function callable from JS
     // The function is exposed globally as window.<name>
     using BindingCallback = std::function<std::string(const std::string& argsJson)>;

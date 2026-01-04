@@ -3,6 +3,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>
+#import <Carbon/Carbon.h> // For kVK_ANSI_I
 
 namespace clasp_gui {
 namespace platform {
@@ -48,6 +49,25 @@ void initPlatformFixes(void* webview) {
 
     // macOS-specific fixes could go here
     // e.g., handling Escape key crash, first responder issues
+}
+
+void simulateDevToolsShortcut() {
+    // Simulate Cmd+Option+I to open dev tools (UNTESTED)
+    // Creates a keyboard event for 'I' with Command+Option modifiers
+    CGEventRef keyDown = CGEventCreateKeyboardEvent(NULL, kVK_ANSI_I, true);
+    CGEventRef keyUp = CGEventCreateKeyboardEvent(NULL, kVK_ANSI_I, false);
+
+    if (keyDown && keyUp) {
+        CGEventFlags flags = kCGEventFlagMaskCommand | kCGEventFlagMaskAlternate;
+        CGEventSetFlags(keyDown, flags);
+        CGEventSetFlags(keyUp, flags);
+
+        CGEventPost(kCGHIDEventTap, keyDown);
+        CGEventPost(kCGHIDEventTap, keyUp);
+    }
+
+    if (keyDown) CFRelease(keyDown);
+    if (keyUp) CFRelease(keyUp);
 }
 
 } // namespace platform

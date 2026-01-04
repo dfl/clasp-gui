@@ -2,6 +2,8 @@
 #if !defined(__APPLE__) && !defined(_WIN32)
 
 #include <X11/Xlib.h>
+#include <X11/keysym.h>
+#include <X11/extensions/XTest.h>
 
 namespace clasp_gui {
 namespace platform {
@@ -54,6 +56,31 @@ bool removeWebView(void* webview) {
 
 void initPlatformFixes(void* webview) {
     // Linux-specific fixes could go here
+}
+
+void simulateDevToolsShortcut() {
+    // Simulate Ctrl+Shift+I to open dev tools (UNTESTED)
+    Display* display = XOpenDisplay(NULL);
+    if (!display) return;
+
+    KeyCode keyI = XKeysymToKeycode(display, XK_i);
+    KeyCode keyCtrl = XKeysymToKeycode(display, XK_Control_L);
+    KeyCode keyShift = XKeysymToKeycode(display, XK_Shift_L);
+
+    // Press modifiers
+    XTestFakeKeyEvent(display, keyCtrl, True, 0);
+    XTestFakeKeyEvent(display, keyShift, True, 0);
+
+    // Press and release I
+    XTestFakeKeyEvent(display, keyI, True, 0);
+    XTestFakeKeyEvent(display, keyI, False, 0);
+
+    // Release modifiers
+    XTestFakeKeyEvent(display, keyShift, False, 0);
+    XTestFakeKeyEvent(display, keyCtrl, False, 0);
+
+    XFlush(display);
+    XCloseDisplay(display);
 }
 
 } // namespace platform
