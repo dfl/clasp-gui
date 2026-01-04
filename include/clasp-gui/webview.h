@@ -1,12 +1,8 @@
 #pragma once
 
-#include <array>
-#include <chrono>
 #include <functional>
 #include <memory>
-#include <mutex>
 #include <string>
-#include <vector>
 
 namespace clasp_gui {
 
@@ -28,31 +24,19 @@ struct NativeWindow {
 // WebView options
 struct WebViewOptions {
     bool enableDebugMode = false;      // Enable dev tools
-    bool disableContextMenu = true;    // Disable right-click menu
-    bool enablePointerCaptureFix = true; // Fix pointer capture without banner
     std::string initScript;            // Additional JS to inject on load
-};
-
-// Message from JS to native
-struct JsMessage {
-    std::string type;
-    std::string payload;  // JSON string
 };
 
 // Forward declaration
 class WebView;
 
-// Callback types
-using MessageCallback = std::function<void(const JsMessage&)>;
-using ReadyCallback = std::function<void()>;
-
-// Main WebView class
+// Main WebView class - a thin wrapper around the platform webview
 class WebView {
 public:
     explicit WebView(const WebViewOptions& options = {});
     ~WebView();
 
-    // Non-copyable, non-movable (due to mutex)
+    // Non-copyable, non-movable
     WebView(const WebView&) = delete;
     WebView& operator=(const WebView&) = delete;
     WebView(WebView&&) = delete;
@@ -87,67 +71,15 @@ public:
     void evaluateScript(const std::string& js);
 
     // Bind a C++ function callable from JS
-    // JS calls: window.clasp.call('name', arg1, arg2, ...)
+    // The function is exposed globally as window.<name>
     using BindingCallback = std::function<std::string(const std::string& argsJson)>;
     void bind(const std::string& name, BindingCallback callback);
-
-    // Message handling
-    void setMessageCallback(MessageCallback callback);
-    void setReadyCallback(ReadyCallback callback);
-
-    // Send message to JS (calls window.clasp.onMessage(type, payload))
-    void postMessage(const std::string& type, const std::string& payload);
-
-    // Thread-safe parameter updates (can call from audio thread)
-    void queueParamUpdate(int paramId, float value);
-    void queueBulkParamUpdate(const std::vector<std::pair<int, float>>& params);
-
-    // MIDI event notifications (can call from audio thread)
-    void queueNoteOn(int channel, int key, float velocity);
-    void queueNoteOff(int channel, int key);
-    void queueMidiCC(int channel, int cc, int value);
-
-    // Process queued updates (call from main/UI thread)
-    void processQueuedUpdates();
-
-    // Throttle settings
-    void setUpdateRateHz(int hz);  // Default: 60
 
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;
 
     WebViewOptions options_;
-    MessageCallback messageCallback_;
-    ReadyCallback readyCallback_;
-
-    // Thread-safe update queues
-    struct ParamUpdate {
-        int id;
-        float value;
-    };
-    struct NoteEvent {
-        int channel;
-        int key;
-        float velocity;
-        bool isNoteOn;
-    };
-    struct MidiCCEvent {
-        int channel;
-        int cc;
-        int value;
-    };
-
-    std::mutex queueMutex_;
-    std::vector<ParamUpdate> pendingParams_;
-    std::vector<std::pair<int, float>> pendingBulkParams_;
-    std::vector<NoteEvent> pendingNotes_;
-    std::vector<MidiCCEvent> pendingCCs_;
-
-    // Throttling
-    static constexpr int MAX_PARAMS = 256;
-    std::array<std::chrono::steady_clock::time_point, MAX_PARAMS> lastParamUpdate_;
-    std::chrono::milliseconds updateInterval_{16};  // ~60Hz
 };
 
 } // namespace clasp_gui
