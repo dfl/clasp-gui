@@ -1,6 +1,7 @@
 // Platform-specific WebView embedding for Linux (X11)
 #if !defined(__APPLE__) && !defined(_WIN32)
 
+#include <cstdint>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
