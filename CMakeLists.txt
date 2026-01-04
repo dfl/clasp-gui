@@ -73,7 +73,11 @@ elseif(UNIX)
     find_package(PkgConfig)
     if(PkgConfig_FOUND)
         pkg_check_modules(GTK3 gtk+-3.0)
-        pkg_check_modules(WEBKIT2 webkit2gtk-4.0)
+        # Try webkit2gtk-4.1 first (Ubuntu 24.04+), fall back to 4.0
+        pkg_check_modules(WEBKIT2 webkit2gtk-4.1)
+        if(NOT WEBKIT2_FOUND)
+            pkg_check_modules(WEBKIT2 webkit2gtk-4.0)
+        endif()
         if(GTK3_FOUND AND WEBKIT2_FOUND)
             target_include_directories(clasp-gui PRIVATE
                 ${GTK3_INCLUDE_DIRS}
@@ -88,6 +92,10 @@ elseif(UNIX)
     find_package(X11)
     if(X11_FOUND)
         target_link_libraries(clasp-gui PUBLIC ${X11_LIBRARIES})
+        # XTest extension for keyboard simulation
+        if(X11_Xtst_FOUND)
+            target_link_libraries(clasp-gui PUBLIC ${X11_Xtst_LIB})
+        endif()
     endif()
 endif()
 
