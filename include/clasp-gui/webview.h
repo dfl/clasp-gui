@@ -52,11 +52,11 @@ public:
     explicit WebView(const WebViewOptions& options = {});
     ~WebView();
 
-    // Non-copyable, movable
+    // Non-copyable, non-movable (due to mutex)
     WebView(const WebView&) = delete;
     WebView& operator=(const WebView&) = delete;
-    WebView(WebView&&) noexcept;
-    WebView& operator=(WebView&&) noexcept;
+    WebView(WebView&&) = delete;
+    WebView& operator=(WebView&&) = delete;
 
     // Check if webview is available on this platform
     static bool isAvailable();

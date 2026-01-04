@@ -36,7 +36,9 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extern/choc")
     )
     message(STATUS "clasp-gui: Using bundled CHOC")
 elseif(DEFINED CHOC_DIR)
-    target_include_directories(clasp-gui PUBLIC ${CHOC_DIR})
+    target_include_directories(clasp-gui PUBLIC
+        $<BUILD_INTERFACE:${CHOC_DIR}>
+    )
     message(STATUS "clasp-gui: Using CHOC from ${CHOC_DIR}")
 else()
     message(STATUS "clasp-gui: CHOC not found - WebView will be disabled")
@@ -48,7 +50,9 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/extern/clap/include")
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/clap/include>
     )
 elseif(DEFINED CLAP_DIR)
-    target_include_directories(clasp-gui PUBLIC ${CLAP_DIR}/include)
+    target_include_directories(clasp-gui PUBLIC
+        $<BUILD_INTERFACE:${CLAP_DIR}/include>
+    )
 elseif(TARGET clap)
     target_link_libraries(clasp-gui PUBLIC clap)
 else()

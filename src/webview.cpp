@@ -167,9 +167,6 @@ WebView::~WebView() {
     destroy();
 }
 
-WebView::WebView(WebView&& other) noexcept = default;
-WebView& WebView::operator=(WebView&& other) noexcept = default;
-
 bool WebView::isAvailable() {
     return true;
 }
@@ -439,8 +436,6 @@ WebView::WebView(const WebViewOptions& options)
     : impl_(std::make_unique<Impl>()), options_(options) {}
 
 WebView::~WebView() = default;
-WebView::WebView(WebView&&) noexcept = default;
-WebView& WebView::operator=(WebView&&) noexcept = default;
 
 bool WebView::isAvailable() { return false; }
 bool WebView::isApiSupported(WindowApi) { return false; }
