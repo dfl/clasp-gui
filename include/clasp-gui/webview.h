@@ -23,7 +23,9 @@ struct NativeWindow {
 
 // WebView options
 struct WebViewOptions {
-    bool enableDebugMode = false;      // Enable dev tools
+    bool enableDebugMode = false;      // Enable dev tools (right-click inspect, etc.)
+    bool openDevToolsOnStart = false;  // Open dev tools inspector window on creation
+    bool disableContextMenu = false;   // Disable right-click context menu
     std::string initScript;            // Additional JS to inject on load
 };
 

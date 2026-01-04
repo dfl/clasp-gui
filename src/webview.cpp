@@ -64,9 +64,17 @@ bool WebView::create() {
 
     choc::ui::WebView::Options opts;
     opts.enableDebugMode = options_.enableDebugMode;
+    opts.enableDebugInspector = options_.openDevToolsOnStart;
 
     impl_->webview = std::make_unique<choc::ui::WebView>(opts);
     if (!impl_->webview) return false;
+
+    // Inject context menu disabling script if requested
+    if (options_.disableContextMenu) {
+        impl_->webview->addInitScript(
+            "document.addEventListener('contextmenu', e => e.preventDefault());"
+        );
+    }
 
     // Inject user's init script if provided
     if (!options_.initScript.empty()) {
